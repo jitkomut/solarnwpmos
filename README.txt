@@ -59,3 +59,6 @@ daresult_validation2.mat: contain forcasting results based on training from Jan 
 
 Moreover, the codes in the folder 'code_all_models' has the hourly model, which is not reported in the paper. 
 
+Note that for the additional experiment of statisticallly testing the improvement of forecasting metrics, all codes and results are in 'k-fold' folder. 
+
+
