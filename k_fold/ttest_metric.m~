@@ -1,0 +1,55 @@
+
+%% Statistical t-test of diffence
+% dRMSE = RMSE_othermthod - RMSE_kfdaily ;
+% H0: dRMSE = 0 (two samples have equal mean)
+% https://www.mathworks.com/help/stats/ttest2.html
+% The result h is 1 if the test rejects the null hypothesis at the 5% significance level, and 0 otherwise.
+% Tail = 'right' : Test against the alternative hypothesis that the population mean of x is greater than the population mean of y.
+% H0 : mean of (x - y ) < 0
+% 
+% dmetric_test.rmse = zeros(num_method-1,4); % 4 columns are 1. mean of delta metric 2. h (binary) 3. p-value 4. t-stats 
+% dmetrichour_test.rmse = zeros(num_method-1,4,num_hour); % 4 columns are 1. delta metric 2. h (binary) 3. p-value 4. t-stats 
+
+% TEST_NAME = ['[h,p,[],stats] = ttest2(x,y)'];  % t-test
+TEST_NAME = ['[h,p,[],stats] = ttest2(x,y)'];  % t-test
+
+for jj = 1: (num_method -1)
+    y = perfindex_kfold.rmse(:,end); % our method
+    x = perfindex_kfold.rmse(:,jj) ; % each of other methods
+    [h,p,ci,stats] = ttest2(x,y);      
+    dmetric_test.rmse(jj,:) = [mean(x-y) h p stats.tstat];
+    
+    y = perfindex_kfold.mae(:,end);
+    x = perfindex_kfold.mae(:,jj) ; 
+    [h,p,ci,stats] = ttest2(x,y);
+    dmetric_test.mae(jj,:) = [mean(x-y) h p stats.tstat];
+    
+    y = perfindex_kfold.mbe(:,end);
+    x = perfindex_kfold.mbe(:,jj) ; 
+    [h,p,ci,stats] = ttest2(x,y);
+    dmetric_test.mbe(jj,:) = [mean(x-y) h p stats.tstat];
+    
+   for kk=1:num_hour
+       
+%        perfindex_kfoldhour.rmse is num_fold x num_method x num_hour
+       y = perfindex_kfoldhour.rmse(:,end,kk); % our method
+       x = perfindex_kfoldhour.rmse(:,jj,kk);
+       [h,p,ci,stats] = ttest2(x,y);
+       dmetrichour_test.rmse(jj,:,kk) = [mean(x-y) h p stats.tstat];
+       
+       y = perfindex_kfoldhour.mae(:,end,kk);
+       x = perfindex_kfoldhour.mae(:,jj,kk) ; 
+       [h,p,ci,stats] = ttest2(x,y);
+       dmetrichour_test.mae(jj,:,kk) = [mean(x-y) h p stats.tstat];
+       
+       y = perfindex_kfoldhour.mbe(:,end,kk);
+       x = perfindex_kfoldhour.mbe(:,jj,kk);
+       [h,p,ci,stats] = ttest2(x,y);
+       dmetrichour_test.mbe(jj,:,kk) = [mean(x-y) h p stats.tstat];
+   end
+   
+end
+dmetric_test.info = {'each metric: methods x [avg(dMetric) test result (1=reject) p-value t-stats]'} ;
+dmetrichour_test.info = {'each metric: methods x [avg(dMetric) test result (1=reject) p-value t-stats] x num_hour'} ;
+dmetric_test
+dmetrichour_test
